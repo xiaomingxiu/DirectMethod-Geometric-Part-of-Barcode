@@ -1,0 +1,324 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%2345678901234567890123456789012345678901234567890123456789012345678901234567890
+%        1         2         3         4         5         6         7         8
+
+\documentclass[letterpaper, 10 pt, conference]{ieeeconf}  % Comment this line out if you need a4paper
+
+%\documentclass[a4paper, 10pt, conference]{ieeeconf}      % Use this line for a4 paper
+
+\IEEEoverridecommandlockouts                              % This command is only needed if 
+                                                          % you want to use the \thanks command
+
+\overrideIEEEmargins                                      % Needed to meet printer requirements.
+
+% See the \addtolength command later in the file to balance the column lengths
+% on the last page of the document
+
+% The following packages can be found on http:\\www.ctan.org
+\usepackage{graphics} % for pdf, bitmapped graphics files
+\usepackage{epsfig} % for postscript graphics files
+\usepackage{mathptmx} % assumes new font selection scheme installed
+\usepackage{times} % assumes new font selection scheme installed
+\usepackage{amsmath} % assumes amsmath package installed
+\usepackage{amssymb}  % assumes amsmath package installed
+\usepackage{amsthm}
+
+\newtheorem{myTheo}{Theorem}
+
+\theoremstyle{remark}
+\newtheorem{myrem}{Remark}
+
+\title{\LARGE \bf
+Geometric Part*
+}
+
+
+\author{Xiao Ming Xiu$^{1}$  \\% <-this % stops a space
+\\
+\footnotesize\textit{\today}
+\thanks{*This work was supported by Standard-Robots Ltd.,co.}% <-this % stops a space
+\thanks{$^{1}$Xiao Ming Xiu is with Visual SLAM Algorithm Group, Standard-Robots Ltd.,co. Shenzhen, China. 
+        {\tt\small stevenxiu@aliyun.com}}%
+}
+
+
+\begin{document}
+
+
+
+\maketitle
+\thispagestyle{empty}
+\pagestyle{empty}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{abstract}
+Given 3 2-D points' coordinates in two different Reference Systems, Barcode System (BS) and Camera System (CS), output two things:  $\vec{t}$ and $\theta$, defined as the CS origin's coordinates in BS and the rotated angle of CS relative to BS.  
+
+\end{abstract}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Problem Setting}
+\subsection{Given}
+Notation: $$ BS --- S $$  $$ CS --- S' $$
+
+Three Points' coordinates in both systems are known:
+$$ P1:  (x_1,y_1), (x_1',y_1') $$
+$$ P2:  (x_2,y_2), (x_2',y_2') $$
+$$ P3:  (x_3,y_3), (x_3',y_3') $$
+
+\subsection{Want}
+$$\vec{t} = (t_x, t_y)$$
+$$ \theta $$
+
+where, \\$\vec{t}$ is defined by S' origin in S.\\
+$\theta$ is defined by
+
+\begin{equation}
+\begin{aligned}
+(\epsilon_x',\epsilon_y')&= (\epsilon_x,\epsilon_y)*R\\
+						&= (\epsilon_x,\epsilon_y)*
+\begin{bmatrix}
+\cos{\theta}&-\sin{\theta}\\
+\sin{\theta}&cos{\theta}
+\end{bmatrix}
+\end{aligned}
+\end{equation}
+
+($\epsilon_x, \epsilon_y$ denotes the basis vector in S.  $\epsilon_x', \epsilon_y'$ denotes the basis vector in S'.)
+
+\subsection{Relationship Equation}
+
+Denote $\vec{P}$ (column vector)as vector coordinate representation in S and $\vec{P}'$ in S'. We have
+
+\begin{equation}
+\vec{P} = \vec{t} + R*\vec{P}' 
+\end{equation}
+
+Write in explicit form:
+
+\begin{equation}
+\begin{bmatrix}
+x\\
+y
+\end{bmatrix}
+=
+\begin{bmatrix}
+t_x \\
+t_y
+\end{bmatrix}
++
+\begin{bmatrix}
+\cos{\theta}&-\sin{\theta}\\
+\sin{\theta}&cos{\theta}
+\end{bmatrix}
+*
+\begin{bmatrix}
+x' \\
+y'
+\end{bmatrix}
+\end{equation}
+
+Eq. (3) is necessary and sufficient.\\ 
+You have 3 unknown variables, $t_x, t_y, \theta$. Given 1 pair coordinates $\vec{P}$ and $\vec{P}'$, you will get 2 independent equations. At least,  2 points are needed to solve all the 3 variables, though 1 equation is over determined. \\
+
+\section{Question: what is minimal set of input sufficient to solve?}
+\begin{myTheo}
+Given 6 Rits of $x_1,y_1,x_1',y_1',x_2,x_2'$ is sufficient.
+\end{myTheo}
+3 independent equations have already been prepared up from Eq.(3). Only left with a Two-fold ambiguity.\\
+
+\begin{myrem}
+The set of 1.5 points, not 2,  is the minimum input.  
+\end{myrem}
+
+\begin{myrem}
+Do there exist the following case: the input given format cannot exactly fit the sufficient and necessary solution of Problem, at least have some input as overdetermined condition and called unavoidable waste input?
+\end{myrem}
+
+
+\section{Solution}
+Eliminate $\theta$ first from Eq. (3) by Left Multiply (based on $R^T*R=I$) :
+( Eq. (3) represents 2 equations.)
+\begin{equation}
+(x-t_x)^2 + (y-t_y)^2 = {x'}^2 + {y'}^2
+\end{equation}
+
+Rely on Point P1 and P2.  Substitute Eq.(4) as:
+\begin{equation}
+(x_1-t_x)^2 + (y_1-t_y)^2 = {x_1'}^2 + {y_1'}^2 
+\end{equation}
+\begin{equation}
+(x_2-t_x)^2 + (y_2-t_y)^2 = {x_2'}^2 + {y_2'}^2
+\end{equation}
+
+Use Eq.(5)- Eq.(6), we get
+
+\begin{equation}
+t_y=k t_x + b
+\end{equation}
+
+where
+\begin{equation}
+k=-\frac{x_1 - x_2}{y_1 - y_2}
+\end{equation}
+\begin{equation}
+\begin{aligned}
+b=&{\frac{1}{2}}*\{ y_1 + y_2 \\
+&- {\frac{1}{y_1 - y_2}}[x'_1^2 + y'_1^2 - x'_2^2 -y'_2^2 -x_1^2 + x_2^2]\}
+\end{aligned}
+\end{equation}
+
+Substitute $t_y$ in Eq. (5)
+\begin{equation}
+At_x^2 + Bt_x + C =0
+\end{equation}
+Where,
+\begin{equation}
+\begin{aligned}
+A&=1+k^2 \\
+B&=-2[x_1 + k(y_1 -b)]\\
+C&= x_1^2 + (y_1 -b)^2 - x_1'^2 - y_1'^2
+\end{aligned}
+\end{equation}
+
+Solve this quadratic equation
+$$\Delta = B^2 - 4AC$$
+
+\begin{equation}
+t_x= \frac{-B \pm \sqrt{\Delta} }{2A}
+\end{equation}
+
+The corresponding $t_y$ can be derived from Eq. (7).
+
+Here is a two-fold ambiguity. Only one of the roots are correct. Check them by the third point P3:
+
+\begin{equation}
+(x_3-t_x)^2 + (y_3 - t_y)^2 = x'_3^2 + y'_3^2
+\end{equation}
+
+Define
+\begin{equation}
+\delta_{check} = |(x_3-t_x)^2 + (y_3 - t_y)^2  - ( x'_3^2 + y'_3^2 )| ?=? 0
+\end{equation}
+
+
+The right root will satisfy Eq. (13). In  practice we can set the threshold of $\delta_{check}$.
+
+\section{Experiments of Oct.17}
+In the evening of Oct.17, a 2cm translation experiment was conducted.
+
+    \begin{figure}  
+    \begin{minipage}[t]{0.5\linewidth}  
+    \centering  
+    \includegraphics[width=1.6in]{0cm1017.jpg}  
+    \caption{0cm Case No Lean}  
+    \label{fig:side:a}  
+    \end{minipage}%  
+    \begin{minipage}[t]{0.5\linewidth}  
+    \centering  
+    \includegraphics[width=1.6in]{2cm1017.jpg}  
+    \caption{2cm Case No Lean}  
+    \label{fig:side:b}  
+    \end{minipage}  
+    \end{figure}  
+
+\subsection{2cm case data}
+
+Notice you need to transform the S' pixel unit to cm.
+ 
+\begin{table}[h]
+\caption{2cm1017.jpg's P1,P2,P3 }
+\label{table_example}
+\begin{center}
+\begin{tabular}{|c|c|c|}
+
+\hline
+2cmNoLean & BS (cm)& CS(pixel)\\
+\hline
+
+P1 & (0,0)& (267,455) \\
+\hline
+
+P2 & $(3*cos(30^\circ),3*sin(30^\circ))$ & (271,256) \\
+
+\hline
+P3 & $(-3*cos(30^\circ),3*sin(30^\circ))$ & (466,460)\\
+\hline
+\end{tabular}
+\end{center}
+\end{table}
+
+Output:
+
+$$t_x=7.94855$$
+$$t_y=-0.215983$$
+$$\theta=120^\circ$$
+
+
+\subsection{0cm case data}
+
+ 
+\begin{table}[h]
+\caption{0cm1017.jpg's P1,P2,P3 }
+\label{table_example}
+\begin{center}
+\begin{tabular}{|c|c|c|}
+
+\hline
+0cmNoLean & BS (cm)& CS(pixel)\\
+\hline
+
+P1 & (0,0)& (399,458) \\
+\hline
+
+P2 & $(3*cos(30^\circ),3*sin(30^\circ))$ & (406,257) \\
+
+\hline
+P3 & $(-3*cos(30^\circ),3*sin(30^\circ))$ & (599,463)\\
+\hline
+\end{tabular}
+\end{center}
+\end{table}
+
+Output:
+
+$$t_x=8.82632$$
+$$t_y=-2.04685$$
+$$\theta=118.005^\circ$$
+
+\subsection{Translation Calculation}
+\begin{equation}
+\begin{aligned}
+Translation&=\sqrt{ (7.94855-8.82632)^2 +(-0.215983 + 2.04685)^2}\\
+		   &=2.03 cm
+\end{aligned}
+\end{equation}
+
+The real translation is just 2 cm. So the precision has attained to 0.3mm. 
+
+
+\section{Experiments of Oct.19}
+In the evening of Oct.19, just use the data collected in Sep., to check the algorithm again in Lean case.
+
+    \begin{figure}  
+    \begin{minipage}[t]{0.5\linewidth}  
+    \centering  
+    \includegraphics[width=1.6in]{0cm96Lean.jpg}  
+    \caption{0cm Case No Lean}  
+    \label{fig:side:a}  
+    \end{minipage}%  
+    \begin{minipage}[t]{0.5\linewidth}  
+    \centering  
+    \includegraphics[width=1.6in]{1cm96Lean.jpg}  
+    \caption{2cm Case No Lean}  
+    \label{fig:side:b}  
+    \end{minipage}  
+    \end{figure}  
+
+
+
+
+
+\end{document}
